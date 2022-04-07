@@ -1,3 +1,6 @@
+# ECE 381V Project - Modified VirSeeker
+Building off the original work done to create VirSeeker, I seek to improve the model by introducing ensemble methods in which we add
+
 # RNN-VirSeeker
 Version 1.1 <br>
 Authors: Yan Miao, Fu Liu, Yun Liu <br>
@@ -30,10 +33,6 @@ Users can utilize the trained model directly to test query contigs. Or you can m
 Note: Before training, set the path to where the database is located. All labels should be encoded to one-hot labels.
 
 To make a prediction, users' own query contigs should be edited into a ".csv" file, where every line contains a single query contig. Through `test.py`, RNN-VirSeeker will give a set of scores to each query contig, higher of which represents its classification result.
-
-# ECE 381V Project 
-Building off the original work done to create VirSeeker, I seek to improve the model by introducing ensemble methods in which we add
-
 
 # Copyright and License Information
 Copyright (C) 2019 Jilin University
