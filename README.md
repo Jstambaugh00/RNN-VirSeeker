@@ -31,6 +31,10 @@ Note: Before training, set the path to where the database is located. All labels
 
 To make a prediction, users' own query contigs should be edited into a ".csv" file, where every line contains a single query contig. Through `test.py`, RNN-VirSeeker will give a set of scores to each query contig, higher of which represents its classification result.
 
+# ECE 381V Project 
+Building off the original work done to create VirSeeker, I seek to improve the model by introducing ensemble methods in which we add
+
+
 # Copyright and License Information
 Copyright (C) 2019 Jilin University
 
