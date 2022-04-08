@@ -1,0 +1,21 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 1 files
+Detected 0 issues that require attention
+--------------------------------------------------------------------------------
+================================================================================
+Detailed log follows:
+
+================================================================================
+--------------------------------------------------------------------------------
+Processing file '/Users/jacobstambaugh/Documents/RNN-VirSeeker/test.py'
+ outputting to '/tmp/custom_regression_v2.py'
+--------------------------------------------------------------------------------
+
+15:5: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+15:23: INFO: Renamed 'tf.ConfigProto' to 'tf.compat.v1.ConfigProto'
+17:16: INFO: Renamed 'tf.train.import_meta_graph' to 'tf.compat.v1.train.import_meta_graph'
+20:11: INFO: Renamed 'tf.get_collection' to 'tf.compat.v1.get_collection'
+22:12: INFO: Renamed 'tf.get_default_graph' to 'tf.compat.v1.get_default_graph'
+--------------------------------------------------------------------------------
+

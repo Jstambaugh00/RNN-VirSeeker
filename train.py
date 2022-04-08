@@ -6,14 +6,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from sklearn import metrics
 
-os.chdir('dir')
-
-X_train = np.loadtxt(open("train_data.csv", "rb"), delimiter=",", skiprows=0)
-y_train = np.loadtxt(open("train_label.csv", "rb"), delimiter=",", skiprows=0)
+os.chdir('/Users/jacobstambaugh/Documents/RNN-VirSeeker/model')
 
 
 def next_batch(train_data, train_target, batch_size):
-    index = [i for i in range(0, len(train_target))]
+    """Something about this function"""
     np.random.shuffle(index)
     batch_data = []
     batch_target = []
@@ -25,17 +22,33 @@ def next_batch(train_data, train_target, batch_size):
     return batch_data, batch_target, batch_seqlen
 
 
-f = open('unpadding_file.csv', 'r')
-test_seqlen = []
-lines = f.readlines()
-for line in lines:
-    a = len(line)
-    b = a / 2
-    test_seqlen.append(int(b))
-f.close()
+def dynamicRNN(x, seqlen, weights, biases):
+    """Some thing about function"""
+    lstm_cell = tf.contrib.rnn.BasicLSTMCell(n_hidden)
+    outputs, states = tf.nn.dynamic_rnn(lstm_cell, x, dtype=tf.float32, sequence_length=seqlen)
+    value = tf.transpose(outputs, [1, 0, 2])
+    last = tf.gather(value, int(value.get_shape()[0]) - 1)
+
+    return tf.matmul(last, weights['out']) + biases['out']
+
+
+X_train = np.loadtxt(open("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/rnn_train.csv", "rb"), delimiter=",", skiprows=0)
+y_train = np.loadtxt(open("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_train.csv", "rb"), delimiter=",", skiprows=0)
+
+try:
+    f = open('unpadding_file.csv', 'r')
+    test_seqlen = []
+    lines = f.readlines()
+    for line in lines:
+        a = len(line)
+        b = a / 2
+        test_seqlen.append(int(b))
+    f.close()
+except:
+    pass
 
 learning_rate = 0.00001
-training_iters = 180000
+training_iters = 1000  # 180000
 batch_size = 256
 display_step = 10
 seq_max_len = 500
@@ -49,19 +62,10 @@ seqlen = tf.placeholder(tf.int32, [None])
 weights = {
     'out': tf.Variable(tf.random_normal([n_hidden, n_classes]))
 }
+
 biases = {
     'out': tf.Variable(tf.random_normal([n_classes]))
 }
-
-
-def dynamicRNN(x, seqlen, weights, biases):
-    lstm_cell = tf.contrib.rnn.BasicLSTMCell(n_hidden)
-    outputs, states = tf.nn.dynamic_rnn(lstm_cell, x, dtype=tf.float32, sequence_length=seqlen)
-    value = tf.transpose(outputs, [1, 0, 2])
-    last = tf.gather(value, int(value.get_shape()[0]) - 1)
-
-    return tf.matmul(last, weights['out']) + biases['out']
-
 
 pred = dynamicRNN(x, seqlen, weights, biases)
 preds = tf.reshape(pred, [-1, 256, 2])
