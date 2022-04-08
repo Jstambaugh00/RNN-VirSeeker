@@ -1,6 +1,6 @@
-import tensorflow as tf
+import utils
 
-print(tf.__version__)
+a = ['A', 'G', 'T', 'C']
+b = [1, 2, 3, 4]
 
-
-# !tf_upgrade_v2 --infile /Users/jacobstambaugh/Documents/RNN-VirSeeker/train.py --outfile /tmp/custom_regression_v2.py
+print(utils.str_to_num(a))
