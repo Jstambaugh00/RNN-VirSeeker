@@ -6,6 +6,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import utils
+from torch.autograd import Variable
 
 os.chdir('/Users/jacobstambaugh/Documents/RNN-VirSeeker/model')
 
