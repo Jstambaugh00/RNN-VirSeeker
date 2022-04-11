@@ -38,8 +38,8 @@ class LSTM_model(nn.Module):
 
 def train_LSTM():
     # Load data
-    x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/rnn_train.csv")
-    y_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_train.csv", usecols=[0])
+    x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv",header=None)
+    y_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_small.csv", usecols=[0])
 
     # TODO: Implement training + testing split
 
