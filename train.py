@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 
 class LSTM_model(nn.Module):
@@ -38,10 +39,19 @@ class LSTM_model(nn.Module):
 
 def train_LSTM():
     # Load data
-    x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv",header=None)
-    y_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_small.csv", usecols=[0])
+    x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
+    y_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_small.csv", header=None,usecols=[0])
+
+    # Transform
+    mm = MinMaxScaler()
+    ss = StandardScaler()
+
+    X_ss = ss.fit_transform(x_train)
+    y_mm = mm.fit_transform(y_train)
 
     # TODO: Implement training + testing split
+    x_train = X_ss[:200, :]
+    y_train = y_mm[:200, :]
 
     # model parameters
     learning_rate = 0.00001
@@ -65,7 +75,7 @@ def train_LSTM():
     lstm1 = LSTM_model(n_classes, seq_len, n_hidden, num_layers, X_train_tensors_final.shape[1])  # our lstm class
 
     # Define the Loss function and optimizer
-    criterion = torch.nn.CrossEntropyLoss()
+    criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(lstm1.parameters(), lr=learning_rate)
 
     #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=preds, labels=y))
