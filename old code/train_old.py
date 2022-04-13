@@ -8,7 +8,7 @@ from sklearn import metrics
 import utils
 from torch.autograd import Variable
 
-os.chdir('/Users/jacobstambaugh/Documents/RNN-VirSeeker/model')
+os.chdir('/model')
 
 
 def next_batch(train_data, train_target, batch_size):
@@ -34,8 +34,8 @@ def dynamicRNN(x, seqlen, weights, biases):
     return tf.matmul(last, weights['out']) + biases['out']
 
 
-X_train = np.loadtxt(open("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/rnn_train.csv", "rb"), delimiter=",", skiprows=0)
-y_train = np.loadtxt(open("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_train.csv", "rb"), delimiter=",", skiprows=0)
+X_train = np.loadtxt(open("/data/rnn_train.csv", "rb"), delimiter=",", skiprows=0)
+y_train = np.loadtxt(open("/data/label_train.csv", "rb"), delimiter=",", skiprows=0)
 
 try:
     f = open('unpadding_file.csv', 'r')

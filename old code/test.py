@@ -10,10 +10,10 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from sklearn import metrics
 
-os.chdir('/Users/jacobstambaugh/Documents/RNN-VirSeeker/model')
+os.chdir('/model')
 
 with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
-    model_file = tf.train.latest_checkpoint("/Users/jacobstambaugh/Documents/RNN-VirSeeker/model")
+    model_file = tf.train.latest_checkpoint("/model")
     new_saver = tf.train.import_meta_graph('train.ckpt-275.meta')
     new_saver.restore(sess, model_file)
 
