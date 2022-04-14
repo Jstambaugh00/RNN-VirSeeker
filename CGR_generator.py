@@ -6,13 +6,14 @@ import pylab
 import utils
 
 
-x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
-data = ''.join(utils.num_to_str(x_train[1]))
-
-
 def count_kmers(sequence, k):
+    """"
+    Function explanation
+    :param sequence: sequence that is being transformed into FCGR
+    :param k: size of kmer
+    """
     d = collections.defaultdict(int)
-    for i in range(len(data) - (k - 1)):
+    for i in range(len(sequence) - (k - 1)):
         d[sequence[i:i + k]] += 1
     for key in d.keys():
         if "N" in key:
@@ -20,49 +21,74 @@ def count_kmers(sequence, k):
     return d
 
 
-def probabilities(kmer_count, k):
-    probabilities = collections.defaultdict(float)
-    N = len(data)
+def probabilities(kmer_count, k, n):
+    """"
+    Function explanation
+    :param kmer_count:
+    :param k: size of kmers
+    :param n: length of sequence
+    :return:
+    """
+    probs = collections.defaultdict(float)
     for key, value in kmer_count.items():
-        probabilities[key] = float(value) / (N - k + 1)
-    return probabilities
+        probs[key] = float(value) / (n - k + 1)
+    return probs
 
 
-def chaos_game_representation(probabilities, k):
-    array_size = int(math.sqrt(4 ** k))
+def chaos_game_representation(seq,k):
+    """
+    Function does X
+    :param k:
+    :return:
+    """
+    # Get Count of Kmers
+    kmer_counts = count_kmers(seq, k)
+    # Get Probability
+    kmer_prob = probabilities(kmer_counts, k, len(seq))
+
+    # Initialize matrices
+    array_size = int(math.sqrt(4 ** k))  # array size - depends on K
     chaos = []
+
+    # Create chaos empty chaos matrix
     for i in range(array_size):
         chaos.append([0] * array_size)
 
-    maxx = array_size
-    maxy = array_size
-    posx = 1
-    posy = 1
-    for key, value in probabilities.items():
+    # loop for all bases
+    for key, value in kmer_prob.items():
+        maxX = array_size
+        maxY = array_size
+        posX = 1
+        posY = 1
+
+        # Calculate position in the array
         for char in key:
             if char == "T":
-                posx += maxx / 2
+                posX += maxX / 2
             elif char == "C":
-                posy += maxy / 2
+                posY += maxY / 2
             elif char == "G":
-                posx += maxx / 2
-                posy += maxy / 2
-            maxx = maxx / 2
-            maxy /= 2
-        chaos[int(posy) - 1][int(posx) - 1] = value
-        maxx = array_size
-        maxy = array_size
-        posx = 1
-        posy = 1
+                posX += maxX / 2
+                posY += maxY / 2
+            maxX = maxX / 2
+            maxY /= 2
+
+        # Save value into Array
+        chaos[int(posY) - 1][int(posX) - 1] = value
 
     return chaos
 
 
-f4 = count_kmers(data, 4)
-f4_prob = probabilities(f4, 4)
+def sample():
+    disp = True
+    # Load data
+    x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
+    data = ''.join(utils.num_to_str(x_train[1]))
 
+    chaos_k4 = chaos_game_representation(data, 4)
+    print(chaos_k4)
 
-chaos_k4 = chaos_game_representation(f4_prob, 4)
-pylab.title('Chaos game representation for 4-mers')
-pylab.imshow(chaos_k4, interpolation='nearest', cmap=cm.gray_r)
-pylab.show()
+    if disp:
+        pylab.title('Chaos game representation for K-mers')
+        pylab.imshow(chaos_k4, interpolation='nearest', cmap=cm.gray_r)
+        pylab.show()
