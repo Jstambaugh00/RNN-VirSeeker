@@ -35,7 +35,7 @@ def probabilities(kmer_count, k, n):
     return probs
 
 
-def chaos_game_representation(seq,k):
+def FCGR(seq, k):
     """
     Function does X
     :param k:
@@ -85,7 +85,7 @@ def sample():
     x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
     data = ''.join(utils.num_to_str(x_train[1]))
 
-    chaos_k4 = chaos_game_representation(data, 4)
+    chaos_k4 = FCGR(data, 4)
     print(chaos_k4)
 
     if disp:

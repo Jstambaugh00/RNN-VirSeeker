@@ -48,7 +48,7 @@ class LSTM_model(nn.Module):
         return out
 
 
-def train_LSTM():
+def train_LSTM(x_train, y_train):
     # model parameters
     learning_rate = 0.00001
     num_epochs = 1000
@@ -58,37 +58,21 @@ def train_LSTM():
     n_classes = 2
     num_layers = 1
 
-    # Load data
-    x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
-    y_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_small.csv", header=None)
-
+    """"
     # Transform data + Scale
     # TODO: perform data visualization to see if scalers are needed
     mm = MinMaxScaler()
     ss = StandardScaler()
     #X_ss = ss.fit_transform(x_train)
     #y_mm = mm.fit_transform(y_train)
-
-    # Transform data from dataframe to numpy array
-    X_ss = x_train.to_numpy()
-    y_mm = y_train.to_numpy()
-
-    # Testing/ Training split:
-    # #TODO: Implement training + testing split
-    x_train = X_ss[:150, :]
-    y_train = y_mm[:150, :]
-    x_test = X_ss[150:, :]
-    y_test = y_mm[150:, :]
+    """
 
     # Convert data into tensors
     x_train_tensors = Variable(torch.Tensor(x_train))
     y_train_tensors = Variable(torch.Tensor(y_train))
-    x_test_tensors = Variable(torch.Tensor(x_test))
-    y_test_tensors = Variable(torch.Tensor(y_test))
 
     # Reshaping to [rows, position, features]
     X_train_tensors_final = torch.reshape(x_train_tensors, (x_train_tensors.shape[0], 1, x_train_tensors.shape[1]))
-    X_test_tensors_final = torch.reshape(x_test_tensors, (x_test_tensors.shape[0], 1, x_test_tensors.shape[1]))
 
     # Create RNN Model
     lstm = LSTM_model(n_classes, seq_len, n_hidden, num_layers)  # our lstm class
@@ -115,9 +99,38 @@ def train_LSTM():
 
     # Test after training
     # TODO: Save Model
+    return lstm
     # TODO: Move this to separate file
-    print("Pred")
-    train_predict = lstm(X_test_tensors_final)  # forward pass
-    print(train_predict.data.numpy())
 
-train_LSTM()
+
+def train_CNN(x_train, y_train):
+    return
+
+
+def test_model(model, x_test, y_test):
+    x_test_tensors = Variable(torch.Tensor(x_test))
+    y_test_tensors = Variable(torch.Tensor(y_test))
+    X_test_tensors_final = torch.reshape(x_test_tensors, (x_test_tensors.shape[0], 1, x_test_tensors.shape[1]))
+
+    print("Prediction")
+    train_predict = model(X_test_tensors_final)  # forward pass
+    return train_predict.data.numpy()
+
+
+# Load data
+x = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
+y = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_small.csv", header=None)
+
+# Transform data from dataframe to numpy array
+X_ss = x.to_numpy()
+y_mm = y.to_numpy()
+
+# Testing/ Training split:
+# #TODO: Implement training + testing split
+Xtrain = X_ss[:150, :]
+Ytrain = y_mm[:150, :]
+Xtest = X_ss[150:, :]
+Ytest = y_mm[150:, :]
+
+m = train_LSTM(Xtrain, Ytrain)
+test_model(m, Xtest, Ytest)
