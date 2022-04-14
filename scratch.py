@@ -6,6 +6,7 @@ from torch import nn
 import torch
 from torch.autograd import Variable
 import pandas as pd
+import utils
 
 
 """def forward(self, x, prev_state):
@@ -13,9 +14,9 @@ import pandas as pd
     output, state = self.lstm(embed, prev_state)
     logits = self.fc(output)
     return logits, state"""
-x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
+
 y_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/label_small.csv", usecols=[0],header=None)
 
-print(len(x_train))
-print(len(y_train))
+print(x_train[1])
+
 
