@@ -4,6 +4,7 @@ import math
 import pandas as pd
 import pylab
 import utils
+import numpy as np
 
 
 def count_kmers(sequence, k):
@@ -38,6 +39,7 @@ def probabilities(kmer_count, k, n):
 def FCGR(seq, k):
     """
     Function does X
+    :param seq:
     :param k:
     :return:
     """
@@ -48,11 +50,7 @@ def FCGR(seq, k):
 
     # Initialize matrices
     array_size = int(math.sqrt(4 ** k))  # array size - depends on K
-    chaos = []
-
-    # Create chaos empty chaos matrix
-    for i in range(array_size):
-        chaos.append([0] * array_size)
+    chaos = np.ones([array_size, array_size])
 
     # loop for all bases
     for key, value in kmer_prob.items():

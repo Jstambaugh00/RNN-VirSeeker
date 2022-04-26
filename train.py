@@ -1,11 +1,42 @@
 import torch
 import torch.nn as nn
-#import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+# from sklearn.preprocessing import StandardScaler, MinMaxScaler
+import CGR_generator as cgr
+import utils
+
+
+class CNN_model(nn.Module):
+    def __init__(self, num_classes, input_size, hidden_size):
+        super(CNN_model, self).__init__()
+        self.num_classes = num_classes  # number of classes - output layer
+        self.input_size = input_size  # input size
+        self.hidden_size = hidden_size  # hidden state
+
+        # Model Architecture
+        self.cnn_layers = nn.Sequential(
+            # Defining a 2D convolution layer
+            nn.Conv2d(1, 4, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            # Defining another 2D convolution layer
+            nn.Conv2d(4, 4, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+
+        self.linear_layers = nn.Sequential(
+            nn.Linear(4 * 4 * 4, 10)
+        )
+
+    def forward(self, input_x):
+        input_x = self.cnn_layers(input_x)
+        input_x = input_x.view(input_x.size(0), -1)
+        input_x = self.linear_layers(input_x)
+        return input_x
 
 
 class LSTM_model(nn.Module):
@@ -100,11 +131,66 @@ def train_LSTM(x_train, y_train):
     # Test after training
     # TODO: Save Model
     return lstm
-    # TODO: Move this to separate file
 
 
 def train_CNN(x_train, y_train):
-    return
+    """
+    :param x_train:
+    :param y_train:
+    :return:
+    """
+
+    # model parameters
+    learning_rate = 0.0001
+    num_epochs = 1000
+    mo = 0.9
+    batch_size = 256
+    seq_len = 500
+    n_hidden = 256
+    n_classes = 2
+
+    # generate data- TODO: make this into function
+    x_train_mat = np.ones([10, 16, 16])
+    for i in range(10):
+        x_train_mat[i] = cgr.FCGR(''.join(utils.num_to_str(x_train[i])), 4)
+    y_train = y_train[:10, 0]
+
+    # Tensor Stuff
+    train_x = x_train_mat.reshape(10, 1, 16, 16)
+    train_x = train_x.astype(np.float32)
+    train_x = torch.from_numpy(train_x)
+
+    train_y = torch.from_numpy(y_train)
+
+    # Model
+    cnn = CNN_model(n_classes, seq_len, n_hidden)  # our lstm class
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(cnn.parameters(), lr=learning_rate, momentum=mo)
+
+    for epoch in range(num_epochs):  # loop over the dataset multiple times
+        outputs = cnn(train_x)  # forward pass
+        optimizer.zero_grad()  # calculate the gradient, manually setting to 0
+
+        # obtain the loss function
+        loss = criterion(outputs, train_y)
+
+        loss.backward()  # calculates the loss of the loss function
+
+        optimizer.step()  # improve from loss, i.e backprop
+
+        # Print at set interval
+        if epoch % 100 == 0:
+            print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
+
+    print('Finished Training')
+
+    # todo: save model
+    """
+    PATH = './cifar_net.pth'
+    torch.save(net.state_dict(), PATH)
+    """
+
+    return cnn
 
 
 def test_model(model, x_test, y_test):
@@ -115,6 +201,26 @@ def test_model(model, x_test, y_test):
     print("Prediction")
     train_predict = model(X_test_tensors_final)  # forward pass
     return train_predict.data.numpy()
+
+
+def test_model_cnn(model, x_test, y_test):
+
+    x_test_mat = np.ones([10, 16, 16])
+    for i in range(10):
+        x_test_mat[i] = cgr.FCGR(''.join(utils.num_to_str(x_test[i])), 4)
+    y_train = y_test[:10, 0]
+
+    # Tensor Stuff
+    test_x = x_test_mat.reshape(10, 1, 16, 16)
+    test_x = test_x.astype(np.float32)
+    test_x = torch.from_numpy(test_x)
+
+    train_y = torch.from_numpy(y_train)
+    print("Prediction")
+    train_predict = model(test_x)  # forward pass
+    return train_predict.data.numpy()
+
+###############
 
 
 # Load data
@@ -132,5 +238,9 @@ Ytrain = y_mm[:150, :]
 Xtest = X_ss[150:, :]
 Ytest = y_mm[150:, :]
 
-m = train_LSTM(Xtrain, Ytrain)
-test_model(m, Xtest, Ytest)
+#m = train_LSTM(Xtrain, Ytrain)
+#out = test_model(m, Xtest, Ytest)
+#print(np.shape(out))
+m2 = train_CNN(Xtrain, Ytrain)
+ans=test_model_cnn(m2, Xtest, Ytest)
+print(ans)

@@ -7,9 +7,8 @@ import torch
 from torch.autograd import Variable
 import pandas as pd
 import utils
-from CGR_generator import FCGR
+from CGR_generator import sample
 
-printFCGR('ATGATGTAGTAGTGATGATATGTAGTAGTGA',2)
 
 
 
