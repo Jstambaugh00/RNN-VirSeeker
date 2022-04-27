@@ -9,6 +9,7 @@ from matplotlib import cm
 import CGR_generator as cgr
 import utils
 import math
+from sklearn.model_selection import train_test_split
 
 
 class CNN_model(nn.Module):
@@ -211,7 +212,7 @@ def test_model(model, x_test, y_test):
     return train_predict.data.numpy()
 
 
-def test_model_cnn(model, x_test):
+def test_model_cnn(model, x_test, Ytest):
     # Transform data
     k = 5
     array_size = int(math.sqrt(4 ** k))
@@ -225,10 +226,13 @@ def test_model_cnn(model, x_test):
     # Tensor Transformation
     test_x = x_test_mat.reshape(n, 1, array_size, array_size).astype(np.float32)
     test_x = torch.from_numpy(test_x)
+    truth = torch.tensor(Ytest[:, 0])
 
     # Predict and Return
-    train_predict = model(test_x)
-    return train_predict.data.numpy()
+    predict = model(test_x)
+
+    print(binary_acc(predict, truth))
+    return
 
 
 def binary_acc(y_pred, y_test):
@@ -250,16 +254,12 @@ X_ss = x.to_numpy()
 y_mm = y.to_numpy()
 
 # Testing/ Training split:
-# #TODO: Implement training + testing split
-Xtrain = X_ss[:150, :]
-Ytrain = y_mm[:150, :]
-Xtest = X_ss[150:, :]
-Ytest = y_mm[150:, :]
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(X_ss, y_mm, test_size=0.25, random_state=42)
 
 #m = train_LSTM(Xtrain, Ytrain)
 #out = test_model(m, Xtest, Ytest)
 #print(np.shape(out))
 m2 = train_CNN(Xtrain, Ytrain)
 print("Prediction")
-ans = test_model_cnn(m2, Xtest)
-print(binary_acc(torch.tensor(ans), torch.tensor(Ytest[:,0])))
+test_model_cnn(m2, Xtest,Ytest )
+
