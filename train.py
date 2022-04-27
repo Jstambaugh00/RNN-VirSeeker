@@ -12,36 +12,34 @@ import math
 
 
 class CNN_model(nn.Module):
-    def __init__(self, num_classes, input_size, hidden_size, k):
+    def __init__(self, num_classes, k):
         super(CNN_model, self).__init__()
         self.num_classes = num_classes  # number of classes - output layer
-        self.input_size = input_size  # input size
-        self.hidden_size = hidden_size  # hidden state
         self.k = k  # Kmer length
 
         # Model Architecture
         self.cnn_layers = nn.Sequential(
             # Defining a 2D convolution layer
-            nn.Conv2d(1, 4, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(1, 4, 3, stride=1, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
             # Defining another 2D convolution layer
-            nn.Conv2d(4, 4, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(4, k, 3, stride=1, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
         self.linear_layers = nn.Sequential(
-            nn.Linear(16 * 2 * 2, 2)
+            nn.Linear(k*4**(k-2), 8),
+            nn.ReLU(inplace=True),
+            nn.Linear(8, num_classes)
         )
-        # self.sig = nn.Sigmoid()  # output layer
-        # self.fc3 = nn.Linear(2, 2)
 
     def forward(self, input_x):
+
         input_x = self.cnn_layers(input_x)
         input_x = input_x.view(input_x.size(0), -1)  # flatten
         input_x = self.linear_layers(input_x)
-        # input_x = self.fc3(input_x)
         return input_x
 
 
@@ -147,36 +145,36 @@ def train_CNN(x_train, y_train):
     """
 
     # model parameters
-    learning_rate = 0.005
-    num_epochs = 2000
-    mo = 0.9
+    learning_rate = 0.009
+    num_epochs = 1000
+    mo = 0.6
     batch_size = 256
-    seq_len = 500
-    n_hidden = 256
     n_classes = 2
-    k = 4
+    k = 5
     array_size = int(math.sqrt(4 ** k))
     n = len(x_train)
 
-    # generate data- TODO: make this into function
+    # generate CGR Matrix
     x_train_mat = np.ones([n, array_size, array_size])
     for i in range(n):
         x_train_mat[i] = cgr.FCGR(''.join(utils.num_to_str(x_train[i])), k)
+
+        # Set to True to view images
         if False:
             pylab.imshow(x_train_mat[i], interpolation='nearest', cmap=cm.gray_r)
             pylab.show()
 
-    # Tensor Stuff
-    train_x = x_train_mat.reshape(n, 1, array_size, array_size)
-    train_x = train_x.astype(np.float32)
+    # Tensor Transformations
+    train_x = x_train_mat.reshape(n, 1, array_size, array_size).astype(np.float32)
     train_x = torch.from_numpy(train_x)
     train_y = torch.from_numpy(y_train[:, 0])
 
-    # Model
-    cnn = CNN_model(n_classes, seq_len, n_hidden, k)  # our lstm class
+    # Create CNN Model
+    cnn = CNN_model(n_classes, k)  # our lstm class
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(cnn.parameters(), lr=learning_rate, momentum=mo)
 
+    # Train Model
     for epoch in range(num_epochs):  # loop over the dataset multiple times
         outputs = cnn(train_x)  # forward pass
         optimizer.zero_grad()  # calculate the gradient, manually setting to 0
@@ -214,20 +212,22 @@ def test_model(model, x_test, y_test):
 
 
 def test_model_cnn(model, x_test):
-
+    # Transform data
+    k = 5
+    array_size = int(math.sqrt(4 ** k))
     n = len(x_test)
 
-    x_test_mat = np.ones([n, 16, 16])
+    # Generate CGR matrix
+    x_test_mat = np.ones([n, array_size, array_size])
     for i in range(n):
-        x_test_mat[i] = cgr.FCGR(''.join(utils.num_to_str(x_test[i])), 4)
+        x_test_mat[i] = cgr.FCGR(''.join(utils.num_to_str(x_test[i])), k)
 
-    # Tensor Stuff
-    test_x = x_test_mat.reshape(n, 1, 16, 16)
-    test_x = test_x.astype(np.float32)
+    # Tensor Transformation
+    test_x = x_test_mat.reshape(n, 1, array_size, array_size).astype(np.float32)
     test_x = torch.from_numpy(test_x)
 
-    print("Prediction")
-    train_predict = model(test_x)  # forward pass
+    # Predict and Return
+    train_predict = model(test_x)
     return train_predict.data.numpy()
 
 
@@ -236,8 +236,8 @@ def binary_acc(y_pred, y_test):
     _, y_pred_tags = torch.max(y_pred_tag, dim=1)
     correct_results_sum = (y_pred_tags == y_test).sum().float()
     acc = correct_results_sum/y_test.shape[0]
-    acc = torch.round(acc * 100)
-    return acc
+    return acc.numpy() * 100
+
 ###############
 
 
@@ -260,7 +260,6 @@ Ytest = y_mm[150:, :]
 #out = test_model(m, Xtest, Ytest)
 #print(np.shape(out))
 m2 = train_CNN(Xtrain, Ytrain)
+print("Prediction")
 ans = test_model_cnn(m2, Xtest)
-
-print(np.shape(ans))
 print(binary_acc(torch.tensor(ans), torch.tensor(Ytest[:,0])))

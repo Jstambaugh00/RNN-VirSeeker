@@ -81,11 +81,13 @@ def sample():
     disp = True
     # Load data
     x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
+    k=5
+    print(int(math.sqrt(4 ** k)))
 
     for i in range(5):
-        data = ''.join(utils.num_to_str(x_train[i]))
 
-        chaos_k4 = FCGR(data, 2)
+        data = ''.join(utils.num_to_str(x_train[i]))
+        chaos_k4 = FCGR(data, k)
         print(chaos_k4)
 
         if disp:
