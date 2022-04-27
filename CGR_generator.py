@@ -81,12 +81,15 @@ def sample():
     disp = True
     # Load data
     x_train = pd.read_csv("/Users/jacobstambaugh/Documents/RNN-VirSeeker/data/train_small.csv", header=None)
-    data = ''.join(utils.num_to_str(x_train[1]))
 
-    chaos_k4 = FCGR(data, 4)
-    print(chaos_k4)
+    for i in range(5):
+        data = ''.join(utils.num_to_str(x_train[i]))
 
-    if disp:
-        pylab.title('Chaos game representation for K-mers')
-        pylab.imshow(chaos_k4, interpolation='nearest', cmap=cm.gray_r)
-        pylab.show()
+        chaos_k4 = FCGR(data, 2)
+        print(chaos_k4)
+
+        if disp:
+            pylab.title('Chaos game representation for K-mers')
+            pylab.imshow(chaos_k4, interpolation='nearest', cmap=cm.gray_r)
+            pylab.show()
+
